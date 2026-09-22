@@ -13,7 +13,8 @@ The prototype converts a requested action into five dimensions—ambiguity, cons
 Requirements: Node.js 24 and npm.
 
 ```sh
-cd app
+git clone https://github.com/radiiiianttt/human-agency-in-ai.git
+cd human-agency-in-ai/app
 npm ci
 npm run dev
 ```
