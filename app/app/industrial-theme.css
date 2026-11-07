@@ -158,6 +158,40 @@ main:has(.tone-stopped) { --decision-color: var(--action-stopped); --decision-in
 .trace-entry > p { font-family: var(--font-reading); }
 .trace-entry pre { font-family: var(--font-sans); background: var(--surface-subtle); }
 
+/* Action hierarchy uses the same semantic colors as the existing decision. */
+.run-button:enabled { border-color: #d0d0d0; }
+.tone-execute .decision-actions .ui-button[data-variant='default'] {
+  --primary: var(--action-execute);
+  --primary-foreground: var(--action-execute-ink);
+  --primary-hover: #d3e69f;
+  --primary-active: #b1cc70;
+  border-color: var(--action-execute);
+}
+.clarification-form .ui-button {
+  --primary: var(--action-clarify);
+  --primary-foreground: var(--action-clarify-ink);
+  --primary-hover: #d6d0f3;
+  --primary-active: #b1a6dd;
+  border-color: var(--action-clarify);
+}
+.clarification-form .ui-button .ui-spinner { filter: brightness(0); }
+.clarification-choices .ui-button {
+  --card: #17121f;
+  --foreground: var(--action-clarify);
+  --border: #a99ad0;
+  --accent: #2d2340;
+  --accent-foreground: #e2dcf6;
+  --secondary-hover: #382b50;
+}
+.tone-confirm .decision-actions .ui-button[data-variant='default'] { border-color: var(--action-confirm); }
+.decision-actions .ui-button[data-variant='secondary'] {
+  --secondary: #151515;
+  --secondary-foreground: #bcbcbc;
+  --secondary-hover: #2c2c2c;
+  border-color: #444444;
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .trace-entry summary { transition: none; }
 }
