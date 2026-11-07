@@ -4,6 +4,16 @@ import type {Assessment,PolicyDecision} from '../../engine/policy';
 import type {Action} from '../../engine/world';
 import {Runtime,examples} from '../runtime';
 import type {ExampleId,State,TraceEntry} from '../runtime';
+import {Button} from '../components/ui/button';
+import {Input} from '../components/ui/input';
+import {Textarea} from '../components/ui/textarea';
+import {Label} from '../components/ui/label';
+import {Card} from '../components/ui/card';
+import {Badge} from '../components/ui/badge';
+import {Select} from '../components/ui/select';
+import {Tabs, TabsList, TabsTrigger, TabsContent} from '../components/ui/tabs';
+import {Sheet} from '../components/ui/sheet';
+import {Collapsible} from '../components/ui/collapsible';
 
 type Drawer='trace'|'world'|null;
 type Tone='idle'|'working'|'execute'|'clarify'|'confirm'|'stopped';
@@ -75,29 +85,100 @@ export default function Page(){
   const[,refresh]=useState(0),[input,setInput]=useState(''),[answer,setAnswer]=useState(''),[drawer,setDrawer]=useState<Drawer>(null),[worldTab,setWorldTab]=useState<'documents'|'lists'|'messages'>('documents'),[before,setBefore]=useState<Snapshot>(()=>r.world.snapshot());
   const update=()=>refresh(n=>n+1);
   useEffect(()=>{const ops:Partial<Record<State,()=>void>>={Assessing:()=>r.assess(),Executing:()=>r.execute(),Undoing:()=>r.undo()};const op=ops[r.state];if(!op)return;const timer=setTimeout(()=>{op();update()},180);return()=>clearTimeout(timer)},[r,r.state]);
-  useEffect(()=>{if(!drawer)return;const close=(e:KeyboardEvent)=>{if(e.key==='Escape')setDrawer(null)};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close)},[drawer]);
+  const drawerTrigger=useRef<HTMLButtonElement|null>(null);
   const submit=async(clarifying=false)=>{if(!clarifying)setBefore(r.world.snapshot());const p=r.interpret(clarifying?r.inputRequest:input,clarifying?answer:undefined);update();await p;if(runtime.current===r)update();setAnswer('')};
   const select=(id:ExampleId)=>{setBefore(r.world.snapshot());setInput('');r.prepare(id);update()};
   const snapshot=r.world.snapshot(),assessment=r.assessment,raw=firstDecision(r.trace,r.decision),decision=presentDecision(raw,r.state),result=resultText(r),delta=resultContext(r.action,before,snapshot,r);
   const request=r.naturalLanguage?r.inputRequest:examples.find(x=>x[0]===r.selected)?.[2]??'No request yet';
+  const clarificationPending=r.state==='Interpreting'&&r.clarification.length>0;
+  const requestPending=r.state==='Interpreting'&&!clarificationPending;
   return <main>
-    <header className="lab-header"><div className="identity"><strong>Human Agency in AI</strong></div><p>How can AI preserve user agency without asking permission for everything?</p><div className="inspect-controls"><button onClick={()=>setDrawer('trace')}>Trace <span>{r.trace.length}</span></button><button onClick={()=>setDrawer('world')}>Workspace</button></div></header>
-    <section className="request-zone" aria-labelledby="request-label"><form className="request-composer" onSubmit={e=>{e.preventDefault();void submit()}}><label className="sr-only" htmlFor="request">Describe an action</label><textarea id="request" value={input} onChange={e=>setInput(e.target.value)} maxLength={2000} placeholder="Describe an action…" disabled={r.busy}/><button className="run-button" disabled={r.busy||!input.trim()}>Run <span>→</span></button></form><div className="scenario-row" aria-label="Example scenarios"><span>TRY</span>{featured.map(id=>{const x=examples.find(e=>e[0]===id)!;return <button key={id} className={r.selected===id?'active':''} disabled={r.busy} onClick={()=>select(id)}>{x[1]}</button>})}<label className="scenario-select">More <select value="" disabled={r.busy} onChange={e=>{if(e.target.value)select(e.target.value as ExampleId)}}><option value="">scenarios</option>{examples.filter(x=>!featured.includes(x[0])).map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</select></label></div><div className="request-heading"><span className="step-label" id="request-label">USER REQUEST</span><p>{request}</p></div></section>
+    <header className="lab-header">
+      <div className="identity"><strong>Human Agency in AI</strong></div>
+      <p>How can AI preserve user agency without asking permission for everything?</p>
+      <div className="inspect-controls">
+        <Button variant="outline" onClick={e=>{drawerTrigger.current=e.currentTarget;setDrawer('trace')}}>Trace <span>{r.trace.length}</span></Button>
+        <Button variant="outline" onClick={e=>{drawerTrigger.current=e.currentTarget;setDrawer('world')}}>Workspace</Button>
+      </div>
+    </header>
+    <Card as="section" className="request-zone" aria-labelledby="request-label">
+      <form className="request-composer" onSubmit={e=>{e.preventDefault();void submit()}}>
+        <Label className="sr-only" htmlFor="request">Describe an action</Label>
+        <Textarea compact id="request" value={input} onChange={e=>setInput(e.target.value)} maxLength={2000} placeholder="Describe an action…" disabled={r.busy}/>
+        <Button type="submit" className="run-button" loading={requestPending} disabled={r.busy||!input.trim()}>Run {!requestPending&&<span aria-hidden="true">→</span>}</Button>
+      </form>
+      <div className="scenario-row" aria-label="Example scenarios">
+        <span>TRY</span>
+        {featured.map(id=>{const x=examples.find(e=>e[0]===id)!;return <Button key={id} size="sm" variant={r.selected===id?'default':'outline'} aria-pressed={r.selected===id} data-scenario={id} disabled={r.busy} onClick={()=>select(id)}>{x[1]}</Button>})}
+        <Select className="scenario-select" size="sm" value="" label="More scenarios" placeholder="More scenarios" disabled={r.busy} onValueChange={id=>select(id as ExampleId)} options={examples.filter(x=>!featured.includes(x[0])).map(x=>({value:x[0],label:x[1]}))}/>
+      </div>
+      <div className="request-heading"><span className="step-label" id="request-label">USER REQUEST</span><p>{request}</p></div>
+    </Card>
     <section className="behavior-board" aria-label="Behavioral decision chain">
-      <article className="stage interpretation-stage"><StageHeading n="01" title="INTERPRET"/><pre className="action-code">{JSON.stringify(actionData(r.action,r.trace,r),null,2)}</pre></article>
-      <article className="stage assessment-stage"><StageHeading n="02" title="ASSESS"/><div className="dimension-list"><Dimension icon="ambiguity" label="Ambiguity" value={assessment?.ambiguity} options={[['clear','Clear'],['minor','Unclear'],['material','Ambiguous']]}/><Dimension icon="consequence" label="Consequence" value={assessment?.consequence} options={[['low','Low'],['moderate','Moderate'],['serious','Serious']]}/><Dimension icon="reversibility" label="Reversibility" value={assessment?.reversibility} options={[['easy','Easy'],['difficult','Difficult'],['irreversible','Irreversible']]}/><Dimension icon="external" label="External impact" value={assessment?.externalImpact} options={[['user_only','User only'],['indirect','Indirect'],['direct','Direct']]}/><Dimension icon="authorization" label="Authorization" value={assessment?.authorization} options={[['missing','Missing'],['unclear_scope','Unclear'],['prior_in_scope','Prior'],['explicit','Explicit']]}/></div></article>
-      <article className={'stage policy-stage tone-'+decision.tone} aria-live="polite"><StageHeading n="03" title="POLICY"/><Icon name={(r.action?.type??'policy') as IconName}/><h1>{decision.label}</h1><div className="why"><span>Why this decision?</span><ul>{reasons(raw,assessment).map(x=><li key={x}>{x}</li>)}</ul></div>
-        {r.state==='Awaiting approval'&&<div className="decision-actions"><button className="primary" onClick={()=>{r.approve();update()}}>Confirm action</button><button onClick={()=>{r.decline();update()}}>Cancel</button></div>}
-        {r.state==='Awaiting clarification'&&!r.naturalLanguage&&<div className="clarification-choices">{snapshot.documents.filter(d=>d.title==='Old draft'&&!d.deleted).map(d=><button key={d.id} onClick={()=>{r.clarify(d.id);update()}}>{d.id} · version {d.version}</button>)}</div>}
-        {r.state==='Awaiting clarification'&&r.naturalLanguage&&<form className="clarification-form" onSubmit={e=>{e.preventDefault();void submit(true)}}><input aria-label="Clarification answer" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Add the missing detail"/><button className="primary" disabled={!answer.trim()}>Continue</button></form>}
-        {(r.state==='Interpreting'||(r.naturalLanguage&&r.state==='Awaiting clarification'))&&<button className="text-button" onClick={()=>{r.cancelInterpretation();update()}}>Cancel request</button>}
-        {r.state==='Completed'&&r.result?.undoToken&&<div className="decision-actions"><button className="primary" onClick={()=>{r.beginUndo();update()}}>Undo action</button><button onClick={()=>{r.simulateEdit();update()}}>Simulate subsequent edit</button></div>}
-      </article>
-      <article className="stage state-stage"><StageHeading n="04" title="STATE"/><Lifecycle state={r.state}/></article>
-      <article className="stage result-stage"><StageHeading n="05" title="RESULT"/><div className="world-delta"><div><span>BEFORE</span><strong>{delta.before}</strong></div><i>→</i><div><span>AFTER</span><strong>{delta.after}</strong><small>{result[0]}</small></div></div>{(r.state==='Execution stopped'||r.state==='Undo blocked')&&<p className="containment">{result[1]}</p>}</article>
+      <Card as="article" className="stage interpretation-stage"><StageHeading n="01" title="INTERPRET"/><pre className="action-code">{JSON.stringify(actionData(r.action,r.trace,r),null,2)}</pre></Card>
+      <Card as="article" className="stage assessment-stage">
+        <StageHeading n="02" title="ASSESS"/>
+        <div className="dimension-list">
+          <Dimension icon="ambiguity" label="Ambiguity" value={assessment?.ambiguity} options={[['clear','Clear'],['minor','Unclear'],['material','Ambiguous']]}/>
+          <Dimension icon="consequence" label="Consequence" value={assessment?.consequence} options={[['low','Low'],['moderate','Moderate'],['serious','Serious']]}/>
+          <Dimension icon="reversibility" label="Reversibility" value={assessment?.reversibility} options={[['easy','Easy'],['difficult','Difficult'],['irreversible','Irreversible']]}/>
+          <Dimension icon="external" label="External impact" value={assessment?.externalImpact} options={[['user_only','User only'],['indirect','Indirect'],['direct','Direct']]}/>
+          <Dimension icon="authorization" label="Authorization" value={assessment?.authorization} options={[['missing','Missing'],['unclear_scope','Unclear'],['prior_in_scope','Prior'],['explicit','Explicit']]}/>
+        </div>
+      </Card>
+      <Card as="article" className={'stage policy-stage tone-'+decision.tone} aria-live="polite">
+        <StageHeading n="03" title="POLICY"/>
+        <Icon name={(r.action?.type??'policy') as IconName}/>
+        <h1>{decision.label}</h1>
+        <div className="why"><span>Why this decision?</span><ul>{reasons(raw,assessment).map(x=><li key={x}><Badge>{x}</Badge></li>)}</ul></div>
+        {r.state==='Awaiting approval'&&<div className="decision-actions">
+          <Button variant={r.action?.type==='delete_document'?'destructive':'default'} onClick={()=>{r.approve();update()}}>Confirm action</Button>
+          <Button variant="outline" onClick={()=>{r.decline();update()}}>Cancel</Button>
+        </div>}
+        {r.state==='Awaiting clarification'&&!r.naturalLanguage&&<div className="clarification-choices">{snapshot.documents.filter(d=>d.title==='Old draft'&&!d.deleted).map(d=><Button variant="outline" key={d.id} onClick={()=>{r.clarify(d.id);update()}}>{d.id} · version {d.version}</Button>)}</div>}
+        {(r.state==='Awaiting clarification'||clarificationPending)&&r.naturalLanguage&&<form className="clarification-form" onSubmit={e=>{e.preventDefault();void submit(true)}}>
+          <Input aria-label="Clarification answer" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Add the missing detail" disabled={clarificationPending}/>
+          <Button type="submit" loading={clarificationPending} disabled={!answer.trim()}>Continue</Button>
+        </form>}
+        {(r.state==='Interpreting'||(r.naturalLanguage&&r.state==='Awaiting clarification'))&&<Button variant="ghost" className="text-button" onClick={()=>{r.cancelInterpretation();update()}}>Cancel request</Button>}
+        {r.state==='Completed'&&r.result?.undoToken&&<div className="decision-actions">
+          <Button onClick={()=>{r.beginUndo();update()}}>Undo action</Button>
+          <Button variant="secondary" onClick={()=>{r.simulateEdit();update()}}>Simulate subsequent edit</Button>
+        </div>}
+      </Card>
+      <Card as="article" className="stage state-stage"><StageHeading n="04" title="STATE"/><Lifecycle state={r.state}/></Card>
+      <Card as="article" className="stage result-stage">
+        <StageHeading n="05" title="RESULT"/>
+        <div className="world-delta"><div><span>BEFORE</span><strong>{delta.before}</strong></div><i>→</i><div><span>AFTER</span><strong>{delta.after}</strong><small>{result[0]}</small></div></div>
+        {(r.state==='Execution stopped'||r.state==='Undo blocked')&&<p className="containment">{result[1]}</p>}
+      </Card>
     </section>
-    {drawer&&<div className="drawer-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setDrawer(null)}}><aside className={'drawer '+(drawer==='trace'?'trace-drawer':'')} role="dialog" aria-modal="true" aria-labelledby="drawer-title"><div className="drawer-header"><div><span className="step-label">SECONDARY VIEW</span><h2 id="drawer-title">{drawer==='trace'?'System trace':'Simulated workspace'}</h2></div><button className="close-button" onClick={()=>setDrawer(null)} aria-label="Close panel">×</button></div>{drawer==='trace'?<div className="trace-list">{r.trace.length?r.trace.map(entry=><details className={'trace-entry source-'+entry.source} key={entry.id}><summary><span>{String(entry.id).padStart(2,'0')}</span><div><strong>{entry.event}</strong><small>{entry.source} · {new Date(entry.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</small></div></summary><p>{entry.summary}</p>{entry.data!==undefined&&<pre>{traceJson(entry.data)}</pre>}</details>):<p className="drawer-empty">Run a request to create a trace.</p>}</div>:<><div className="drawer-tabs"><button aria-pressed={worldTab==='documents'} onClick={()=>setWorldTab('documents')}>Documents ({snapshot.documents.length})</button><button aria-pressed={worldTab==='lists'} onClick={()=>setWorldTab('lists')}>Lists ({snapshot.lists.length})</button><button aria-pressed={worldTab==='messages'} onClick={()=>setWorldTab('messages')}>Outbox ({snapshot.messages.length})</button></div><div className="resources">{worldTab==='documents'?snapshot.documents.map(d=><article key={d.id} className={d.deleted?'trashed':''}><div><span>{d.shared?'SHARED':'PRIVATE'} · V{d.version}</span>{d.deleted&&<span>IN TRASH</span>}</div><h3>{d.title}</h3><p>{d.content}</p><small>{d.id} · {d.historyEnabled?'History available':'No version history'}</small></article>):worldTab==='lists'?snapshot.lists.map(l=><article key={l.id}><div><span>PRIVATE LIST</span><span>{l.items.length} ITEMS</span></div><h3>{l.name}</h3><p>{l.items.join(' · ')}</p><small>{l.id}</small></article>):snapshot.messages.length?snapshot.messages.map(m=><article key={m.id}><div><span>TO {m.recipientId.toUpperCase()} · {m.channel.toUpperCase()}</span></div><h3>Simulated message</h3><p>{m.content}</p></article>):<p className="drawer-empty">No messages have been sent.</p>}</div><button className="reset-button" disabled={r.busy&&r.state!=='Awaiting clarification'&&r.state!=='Awaiting approval'} onClick={()=>{runtime.current=new Runtime();setBefore(runtime.current.world.snapshot());setDrawer(null);update()}}>Reset simulated workspace</button></>}</aside></div>}
-  </main>
+    <Sheet open={drawer!==null} onOpenChange={open=>{if(!open)setDrawer(null)}} title={drawer==='trace'?'System trace':'Simulated workspace'} description={drawer==='trace'?'Observable runtime events for the current request.':'Documents, lists, and messages in the simulated workspace.'} className={'drawer '+(drawer==='trace'?'trace-drawer':'')} onCloseAutoFocus={event=>{event.preventDefault();drawerTrigger.current?.focus()}}>
+      {drawer==='trace'?<div className="trace-list">
+        {r.trace.length?r.trace.map(entry=><Collapsible className={'trace-entry source-'+entry.source} key={entry.id} summary={<><span>{String(entry.id).padStart(2,'0')}</span><div><strong>{entry.event}</strong><small>{entry.source} · {new Date(entry.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</small></div></>}>
+          <p>{entry.summary}</p>{entry.data!==undefined&&<pre>{traceJson(entry.data)}</pre>}
+        </Collapsible>):<p className="drawer-empty">Run a request to create a trace.</p>}
+      </div>:<>
+        <Tabs value={worldTab} onValueChange={value=>setWorldTab(value as typeof worldTab)} className="workspace-tabs">
+          <TabsList className="drawer-tabs" aria-label="Workspace resources">
+            <TabsTrigger value="documents">Documents ({snapshot.documents.length})</TabsTrigger>
+            <TabsTrigger value="lists">Lists ({snapshot.lists.length})</TabsTrigger>
+            <TabsTrigger value="messages">Outbox ({snapshot.messages.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="documents" className="resources">{snapshot.documents.map(d=><article key={d.id} className={d.deleted?'trashed':''}>
+            <div><span>{d.shared?'SHARED':'PRIVATE'} · V{d.version}</span>{d.deleted&&<span>IN TRASH</span>}</div><h3>{d.title}</h3><p>{d.content}</p><small>{d.id} · {d.historyEnabled?'History available':'No version history'}</small>
+          </article>)}</TabsContent>
+          <TabsContent value="lists" className="resources">{snapshot.lists.map(l=><article key={l.id}>
+            <div><span>PRIVATE LIST</span><span>{l.items.length} ITEMS</span></div><h3>{l.name}</h3><p>{l.items.join(' · ')}</p><small>{l.id}</small>
+          </article>)}</TabsContent>
+          <TabsContent value="messages" className="resources">{snapshot.messages.length?snapshot.messages.map(m=><article key={m.id}>
+            <div><span>TO {m.recipientId.toUpperCase()} · {m.channel.toUpperCase()}</span></div><h3>Simulated message</h3><p>{m.content}</p>
+          </article>):<p className="drawer-empty">No messages have been sent.</p>}</TabsContent>
+        </Tabs>
+        <Button variant="outline" className="reset-button" disabled={r.busy&&r.state!=='Awaiting clarification'&&r.state!=='Awaiting approval'} onClick={()=>{runtime.current=new Runtime();setBefore(runtime.current.world.snapshot());setDrawer(null);update()}}>Reset simulated workspace</Button>
+      </>}
+    </Sheet>
+  </main>;
 }
 function StageHeading({n,title}:{n:string;title:string}){return <div className="stage-heading"><span>{n}</span><b>{title}</b></div>}
 function Dimension({icon,label,value,options}:{icon:IconName;label:string;value?:string;options:[string,string][]}){return <div className="dimension"><div className="dimension-name"><Icon name={icon}/><span>{label}</span></div><div className="semantic-scale">{options.map(([key,text])=><span key={key} className={value===key?'selected':''}>{text}</span>)}</div></div>}

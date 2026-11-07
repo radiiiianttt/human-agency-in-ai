@@ -1,3 +1,5 @@
+import '@fontsource-variable/inter';
+import './design-system.css';
 import './globals.css';
 import type { Metadata } from 'next';
 export const metadata: Metadata = { title: 'Human Agency in AI · Invisible Lab', description: 'A local experiment in permission and user agency.' };
