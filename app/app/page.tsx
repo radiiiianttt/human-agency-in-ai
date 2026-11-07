@@ -132,7 +132,7 @@ export default function Page(){
         <h1>{decision.label}</h1>
         <div className="why"><span>Why this decision?</span><ul>{reasons(raw,assessment).map(x=><li key={x}><Badge>{x}</Badge></li>)}</ul></div>
         {r.state==='Awaiting approval'&&<div className="decision-actions">
-          <Button variant={r.action?.type==='delete_document'?'destructive':'default'} onClick={()=>{r.approve();update()}}>Confirm action</Button>
+          <Button onClick={()=>{r.approve();update()}}>Confirm action</Button>
           <Button variant="outline" onClick={()=>{r.decline();update()}}>Cancel</Button>
         </div>}
         {r.state==='Awaiting clarification'&&!r.naturalLanguage&&<div className="clarification-choices">{snapshot.documents.filter(d=>d.title==='Old draft'&&!d.deleted).map(d=><Button variant="outline" key={d.id} onClick={()=>{r.clarify(d.id);update()}}>{d.id} · version {d.version}</Button>)}</div>}

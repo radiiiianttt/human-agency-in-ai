@@ -30,7 +30,7 @@ This is a local React/CSS adaptation of that reference, rather than a claim that
 
 All action buttons use `Button`, with explicit `type="submit"` only inside submit flows. It forwards native button attributes and refs, and provides default, hover, pressed, keyboard focus, disabled, and loading states. Loading disables repeat submissions, retains the accessible label, and sets `aria-busy`. Disabled controls do not acquire enabled hover/pressed treatments.
 
-The prototype maps Run, Continue, and Undo to the primary variant; destructive deletion confirmation to destructive; cancellation and clarification choices to outline; debug follow-up to secondary; and request cancellation/close to ghost. Scenario selection uses `aria-pressed` and the primary variant, not a one-off active style.
+The prototype maps Run, Continue, Undo, and every Confirm action CTA to the black primary variant; cancellation and clarification choices to outline; debug follow-up to secondary; and request cancellation/close to ghost. Scenario selection uses `aria-pressed` and the primary variant, not a one-off active style. The destructive variant remains available in the shared component but is not used for confirmation CTAs.
 
 The scenario menu supports keyboard navigation/typeahead with Radix Select. Workspace tabs use tab/tabpanel semantics and arrow-key navigation. Drawers use Radix Dialog for modal focus containment, Escape/outside dismissal, scroll locking, and focus return to the opening button. Trace expanders retain native `details` keyboard behavior. Reduced-motion preferences suppress component animations.
 
