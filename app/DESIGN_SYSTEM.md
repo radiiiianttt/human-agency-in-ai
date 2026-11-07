@@ -1,7 +1,17 @@
 # Prototype design system
 
-The visual source of truth is the supplied [shadcn/ui community Figma file](https://www.figma.com/design/PneSnj5ZWVlKIsljIHRbdK/-shadcn-ui---Design-System--Community-?node-id=1-22).
-This is a local React/CSS adaptation of that reference, rather than a claim that the latest shadcn CLI defaults match this older file. Shared components live in `components/ui`; semantic tokens and component states live in `app/design-system.css`. Screen layout belongs in `app/globals.css`.
+The shared component foundation comes from the supplied [shadcn/ui community Figma file](https://www.figma.com/design/PneSnj5ZWVlKIsljIHRbdK/-shadcn-ui---Design-System--Community-?node-id=1-22). The current visual skin follows Tanya's industrial interface reference supplied on November 7, 2026, with the explicit constraints to preserve the existing layout and elements and replace its cyan accent with action-specific colors.
+This is a local React/CSS adaptation, rather than a claim that the latest shadcn CLI defaults match this older file. Shared components live in `components/ui`; base semantic tokens and component states live in `app/design-system.css`. Screen layout belongs in `app/globals.css`. The styling-only industrial overrides live in `app/industrial-theme.css`, loaded last.
+
+## Current visual theme
+
+- Neutral metal-like surfaces, subtle scan-line texture, square corners, inset dark fields, fine borders, and tab-like treatments on the existing stage headings.
+- Self-hosted IBM Plex Mono for technical labels, controls, and structured data. Inter remains on prose, reason labels, result summaries, and display titles to retain legibility and the existing wrapping.
+- Primary CTAs remain charcoal across every action, including all confirmation buttons. Hover, pressed, disabled, loading, and keyboard-focus behaviors come from the shared components.
+- The existing policy title and current lifecycle marker carry the action color: Execute uses green, Clarify violet, Confirm amber, and Stopped muted red. No global cyan accent is used. Foreground/background pairs exceed 4.5:1 contrast.
+- No new markup, controls, sidebar, navigation, illustration, or content was introduced. Panel order, grid columns, spacing, responsive breakpoints, runtime, and policy are unchanged.
+
+The base Figma values below describe the underlying component contract; the industrial stylesheet overrides visual tokens and typography without replacing the components.
 
 ## Source mapping
 
@@ -47,3 +57,5 @@ The Figma button set does not specify a separate pressed or keyboard-focus varia
 Run `npm run typecheck`, `npm run build`, and the existing policy/runtime tests. Browser verification should cover button normal/hover/pressed/focus/disabled/loading states; scenario selection and menu keyboard controls; approval, cancellation, clarification, undo and blocked undo; both drawers and focus return; and desktop/tablet/phone overflow. Interpretation loading can be checked with an intercepted local API response, without calling a model.
 
 Verified on November 7, 2026: all six button variants' resting/hover/pressed/disabled/focus styling; default 40px button geometry and loaded Inter; Run and Continue loading states with intercepted API responses; reduced motion; keyboard select and tabs; drawer focus containment and return; native keyboard trace expansion; and five scenario states at ten viewport sizes (320–1440px wide). Existing policy/runtime tests: 45 passed. TypeScript checking and an isolated production build passed.
+
+Industrial restyling: compared Ready, Execute, Confirm, Clarify, and blocked-undo states before and after at 1280×700, 1440×900, 390×844, and 320×568. All 20 comparisons retain identical DOM structure and header, request area, board, and panel rectangles. The semantic title colors have contrast ratios of 7.70:1 (Execute), 6.50:1 (Clarify), 5.78:1 (Confirm), and 5.09:1 (Stopped).
