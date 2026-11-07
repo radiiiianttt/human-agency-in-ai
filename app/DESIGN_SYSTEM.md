@@ -5,9 +5,9 @@ This is a local React/CSS adaptation, rather than a claim that the latest shadcn
 
 ## Current visual theme
 
-- Neutral metal-like surfaces, subtle scan-line texture, square corners, inset dark fields, fine borders, and tab-like treatments on the existing stage headings.
+- True-black and neutral charcoal surfaces without a green tint, subtle scan-line texture, square corners, inset dark fields, fine borders, and tab-like treatments on the existing stage headings. Native browser controls use the dark color scheme.
 - Self-hosted IBM Plex Mono for technical labels, controls, and structured data. Inter remains on prose, reason labels, result summaries, and display titles to retain legibility and the existing wrapping.
-- Primary CTAs remain charcoal across every action, including all confirmation buttons. Hover, pressed, disabled, loading, and keyboard-focus behaviors come from the shared components.
+- Primary CTAs remain near-black across every action, including all confirmation buttons, with visible edge borders against the dark panels. Hover, pressed, disabled, loading, and keyboard-focus behaviors come from the shared components. Assessment markers, completed state markers, chevrons, secondary controls, and trace content have contrasting dark-theme treatments.
 - The existing policy title and current lifecycle marker carry the action color: Execute uses green, Clarify violet, Confirm amber, and Stopped muted red. No global cyan accent is used. Foreground/background pairs exceed 4.5:1 contrast.
 - No new markup, controls, sidebar, navigation, illustration, or content was introduced. Panel order, grid columns, spacing, responsive breakpoints, runtime, and policy are unchanged.
 
