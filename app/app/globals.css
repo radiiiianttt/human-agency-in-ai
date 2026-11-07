@@ -149,16 +149,17 @@ main { width: min(1440px, 100%); min-height: 100svh; margin: 0 auto; padding: 0 
 .containment { margin: 10px 0 0; overflow-wrap: anywhere; color: var(--danger); font-size: 12px; }
 
 .drawer-tabs, .reset-button { flex-shrink: 0; }
-.trace-drawer .ui-collapsible-chevron { filter: brightness(0) invert(1); }
 .trace-list, .resources { flex: 1; min-height: 0; overflow: auto; }
 .trace-entry { border-bottom: 1px solid var(--border); box-shadow: inset 2px 0 transparent; }
-.trace-entry summary { display: grid; grid-template-columns: 30px minmax(0, 1fr) 16px; align-items: center; gap: 8px; padding: 16px 10px; cursor: pointer; list-style: none; }
+.trace-entry summary { display: grid; grid-template-columns: 24px minmax(0, 1fr) 16px; align-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-3); cursor: pointer; list-style: none; transition: background-color .15s ease; }
 .trace-entry summary::-webkit-details-marker { display: none; }
-.trace-entry summary > span { color: var(--placeholder); font: 11px ui-monospace, monospace; }
-.trace-entry summary strong { display: block; font: 500 12px/1.5 ui-monospace, monospace; }
-.trace-entry summary small { display: block; margin-top: 3px; color: var(--placeholder); font-size: 10px; text-transform: uppercase; }
-.trace-entry > p { margin: 0 12px 12px 48px; color: var(--code-foreground); font-size: 12px; line-height: 1.5; }
-.trace-entry pre { margin: 0 12px 14px 48px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-subtle); color: var(--foreground); white-space: pre-wrap; overflow-wrap: anywhere; font: 10px/1.55 ui-monospace, monospace; }
+.trace-entry summary:hover { background: var(--accent); }
+.trace-entry summary:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.trace-entry summary > span { color: var(--muted-foreground); font-size: 12px; line-height: var(--line-height-subtle); font-variant-numeric: tabular-nums; }
+.trace-entry summary strong { display: block; overflow-wrap: anywhere; font-size: 16px; font-weight: var(--font-weight-medium); line-height: var(--line-height-body); }
+.trace-entry summary small { display: block; margin-top: var(--space-1); color: var(--muted-foreground); font-size: 12px; line-height: var(--line-height-subtle); text-transform: uppercase; }
+.trace-entry > p { margin: 0 var(--space-3) var(--space-4) 44px; overflow-wrap: anywhere; color: var(--foreground); font-size: var(--font-size-body); line-height: var(--line-height-subtle); }
+.trace-entry pre { margin: 0 var(--space-3) var(--space-4) 44px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-subtle); color: var(--code-foreground); white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 .source-user { box-shadow: inset 2px 0 var(--trace-user); }
 .source-model { box-shadow: inset 2px 0 var(--trace-model); }
 .source-policy { box-shadow: inset 2px 0 var(--trace-policy); }

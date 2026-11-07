@@ -74,21 +74,6 @@
   --trace-world: #34d399;
 }
 
-/* The approved trace view uses a scoped dark palette, not bespoke button colors. */
-.trace-drawer {
-  --card: #0f172a;
-  --card-foreground: #f8fafc;
-  --foreground: #f8fafc;
-  --muted-foreground: #94a3b8;
-  --border: #334155;
-  --input: #475569;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --secondary-hover: #334155;
-  --surface-subtle: #020617;
-  --code-foreground: #cbd5e1;
-}
-
 .ui-button {
   display: inline-flex;
   align-items: center;

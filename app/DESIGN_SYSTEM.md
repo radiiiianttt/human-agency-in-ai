@@ -36,11 +36,11 @@ The scenario menu supports keyboard navigation/typeahead with Radix Select. Work
 
 ## Deliberate product extensions
 
-The reference does not define this experiment's five-panel diagram, assessment scales, lifecycle, status colors, dark trace view, or reason badges. Those remain product-specific compositions backed by shared color/surface/radius tokens. Compact diagram annotations and monospace trace data retain their existing sizes.
+The reference does not define this experiment's five-panel diagram, assessment scales, lifecycle, status colors, trace source markers, or reason badges. Those remain product-specific compositions backed by shared color/surface/radius tokens. Compact diagram annotations retain their existing sizes. The System trace drawer uses the same light surface and borders as the workspace drawer, Inter for event titles and descriptions, muted metadata, and a subtle surface with monospace text for structured data.
 
 To preserve the approved responsive layout, scenario prompts use a documented 36px small button size, icon buttons use the reference's 32px square size, and the one-line request composer uses a compact 40px textarea. The default textarea retains the reference's 80px minimum. Panel padding adapts to window height rather than forcing Figma's standalone example dimensions onto the screen.
 
-The Figma button set does not specify a separate pressed or keyboard-focus variant. Pressed states use the next stronger color in the same palette; keyboard focus uses the input reference's Slate 400 ring with a 2px offset. Trace expanders inset that ring to keep it visible inside their scrolling container. These are explicit interaction extensions, not inferred Figma variants. Validation borders use the destructive token. The dark trace view scopes the same semantic tokens so its close button and focus indicators remain visible. The scenario select intentionally resets to its placeholder after choosing an action, preserving the prototype's existing action-picker behavior.
+The Figma button set does not specify a separate pressed or keyboard-focus variant. Pressed states use the next stronger color in the same palette; keyboard focus uses the input reference's Slate 400 ring with a 2px offset. Trace expanders inset that ring to keep it visible inside their scrolling container. These are explicit interaction extensions, not inferred Figma variants. Validation borders use the destructive token. The scenario select intentionally resets to its placeholder after choosing an action, preserving the prototype's existing action-picker behavior.
 
 ## Verification
 
