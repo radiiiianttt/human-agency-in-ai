@@ -92,7 +92,7 @@ export default function Page(){
   const request=r.naturalLanguage?r.inputRequest:examples.find(x=>x[0]===r.selected)?.[2]??'No request yet';
   const clarificationPending=r.state==='Interpreting'&&r.clarification.length>0;
   const requestPending=r.state==='Interpreting'&&!clarificationPending;
-  return <main>
+  return <main data-state={r.state}>
     <header className="lab-header">
       <div className="identity"><strong>Human Agency in AI</strong></div>
       <p>How can AI preserve user agency without asking permission for everything?</p>

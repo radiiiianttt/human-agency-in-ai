@@ -1,17 +1,43 @@
 # Prototype design system
 
-The shared component foundation comes from the supplied [shadcn/ui community Figma file](https://www.figma.com/design/PneSnj5ZWVlKIsljIHRbdK/-shadcn-ui---Design-System--Community-?node-id=1-22). The current visual skin follows Tanya's industrial interface reference supplied on November 7, 2026, with the explicit constraints to preserve the existing layout and elements and replace its cyan accent with action-specific colors.
-This is a local React/CSS adaptation, rather than a claim that the latest shadcn CLI defaults match this older file. Shared components live in `components/ui`; base semantic tokens and component states live in `app/design-system.css`. Screen layout belongs in `app/globals.css`. The styling-only industrial overrides live in `app/industrial-theme.css`, loaded last.
+The current visual theme follows Tanya's black-and-white HUMAN / AGENT experiment cover, supplied November 17, 2026. A light canvas and a continuous black decision/result column express the same contrast through the existing prototype layout.
 
-## Current visual theme
+Shared components live in `components/ui`. `app/design-system.css` defines the component contract; `app/globals.css` defines the base screen layout; `app/monochrome-theme.css`, imported last, defines the current palette, typography, spacing, and responsive presentation. The earlier `industrial-theme.css` is retained as an inactive reference and is not imported.
 
-- True-black and neutral charcoal surfaces without a green tint, subtle scan-line texture, square corners, inset dark fields, fine borders, and tab-like treatments on the existing stage headings. Native browser controls use the dark color scheme.
-- Self-hosted IBM Plex Mono for technical labels, controls, and structured data. Inter remains on prose, reason labels, result summaries, and display titles to retain legibility and the existing wrapping.
-- Action controls have explicit hierarchy: Undo uses the Execute green, clarification choices and Continue use violet, and confirmation CTAs stay black with an amber border. Run has a stronger neutral border; Cancel and secondary controls remain neutral. Hover, pressed, disabled, loading, and keyboard-focus behaviors come from the shared components. Assessment markers, completed state markers, chevrons, secondary controls, and trace content have contrasting dark-theme treatments.
-- The existing policy title and current lifecycle marker carry the action color: Execute uses green, Clarify violet, Confirm amber, and Stopped muted red. No global cyan accent is used. Foreground/background pairs exceed 4.5:1 contrast.
-- No new markup, controls, sidebar, navigation, illustration, or content was introduced. Panel order, grid columns, spacing, responsive breakpoints, runtime, and policy are unchanged.
+## Visual foundations
 
-The base Figma values below describe the underlying component contract; the industrial stylesheet overrides visual tokens and typography without replacing the components.
+- Canvas: `#f4f4f2`. Main surfaces: white. Primary ink, actions, and inverse surfaces: `#171717`. Grays provide borders, secondary text, and inactive states. Semantic accents are confined to decisions, their primary controls, and current runtime status.
+- Self-hosted Inter Variable is used for reading and controls. Display titles use bold, tightly spaced uppercase type, reflecting the cover. IBM Plex Mono is reserved for stage numbers, technical labels, structured data, and metadata.
+- The small split capsule beside the identity echoes the cover's central boundary. It is decorative CSS with no added interaction or accessible content.
+- The desktop board joins Interpret and Assess on white, Policy and Result on black, and State below the white region. Internal rules replace separate card outlines. A 20px outer radius echoes the cover at the scale of an interactive interface.
+- Controls use an 8px radius; compact scenario controls and reason badges use 6px. Primary actions are black on light surfaces and use the decision accent with black text on inverse surfaces. Secondary actions remain visually subordinate.
+- Default controls retain a 40px minimum height. The request composer uses 48px (44px in compact desktop windows). Scenario buttons retain the existing 36px size. Mobile inputs use 16px text.
+
+## States and interaction contract
+
+This change affects visual presentation only. Page content, copy, scenario order, policy, runtime, tools, API behavior, and accessible component semantics are unchanged. A `data-state` attribute exposes the existing runtime state to CSS.
+
+Execute uses green, Confirm yellow, Clarify violet, Working blue, and Stopped/Blocked red. Existing decision text, icons, reasons, and available controls provide meaning independently of color. Assessment selections remain black; current lifecycle stages use a darker semantic ink with a ring and heavier text.
+
+The policy title, icon, and primary control reflect the original policy decision. The lifecycle marker and result status reflect the current runtime state: for example, a previously executable action can have a red blocked-undo result. Cancelled and idle states are neutral. Run remains black, with blue during loading. Cancel, navigation, inspection controls, reason badges, and the black panel surfaces retain their neutral treatment.
+
+| Meaning | Accent on black / button fill | Ink on white | Accent-to-black contrast | Ink-to-white contrast |
+| --- | --- | --- | --- | --- |
+| Confirm / approval | `#ffd43b` | `#735500` | 12.58:1 | 6.93:1 |
+| Execute / success / undo | `#88e65b` | `#276510` | 11.54:1 | 7.11:1 |
+| Clarify | `#b8a0ff` | `#6441ae` | 8.12:1 | 7.22:1 |
+| Working | `#69c8ff` | `#00618a` | 9.65:1 | 6.83:1 |
+| Stopped / blocked / error | `#ff7a70` | `#b32f27` | 7.06:1 | 6.26:1 |
+
+Black is `#171717`. All new semantic text pairs exceed WCAG AA's 4.5:1 normal-text threshold; the minimum across defined button default, hover, and active fills is 5.56:1. Colored markers and icons exceed the 3:1 graphical threshold. Focus retains a white 2px outline on inverse panels. Clarification choices use violet text/borders and invert to black text on violet for hover/pressed states. Loading controls retain full opacity so their status stays readable.
+
+Inverse tokens are scoped to the Policy and Result panels. Buttons, fields, badges, disabled controls, loading spinners, and keyboard-focus indicators remain legible against black. Focus is a 2px outline with an offset. Invalid fields receive a thicker border. Text selection also adapts to the surface.
+
+Radix Select retains keyboard navigation and typeahead. Radix Tabs retains arrow-key navigation. Radix Dialog retains focus containment, Escape dismissal, scroll locking, and focus return. Trace entries retain native details/summary semantics. Reduced-motion settings suppress component transitions and spinner animation.
+
+## Responsive presentation
+
+The existing breakpoint structure remains: three columns above 1050px; two assessment columns with full-width subsequent stages from 701–1050px; one column at 700px and below. The same DOM and reading order apply at every size. Scenario controls retain horizontal scrolling. Short desktop windows receive compact spacing so the decision chain remains visible. Drawers use the same neutral palette and adapt to narrow screens.
 
 ## Source mapping
 
@@ -27,35 +53,13 @@ The base Figma values below describe the underlying component contract; the indu
 | Collapsible open/closed indicator | `1:55` | `components/ui/collapsible.tsx` |
 | Inter heading style | `21:1284` | Self-hosted Inter Variable and heading tokens/styles |
 
-## Foundation
-
-- Inter is bundled through `@fontsource-variable/inter`; it is no longer only a fallback font name.
-- Default button: 40px height, 14px/24px medium label, 16px horizontal inset, 6px radius, no arbitrary shadow.
-- Primary: Slate 900 → Slate 700 on hover. Destructive: Red 500 → Red 600 on hover. Outline: white with Slate 200 border → Slate 100 on hover. Secondary (called “subtle” in Figma): Slate 100 → Slate 200. Ghost: transparent → Slate 100. Link: underline on hover.
-- Fields: white, Slate 300 border, Slate 400 placeholder/ring, 6px radius; disabled opacity 50%. Default text input uses 16px/24px; textarea uses 14px/20px.
-- Tabs: Slate 100 track, 3px trigger radius, white selected tab, 14px/20px medium labels.
-- The Figma spinner, checkmark, and chevrons are stored locally in `public/design-system`; there are no temporary Figma URLs in the application.
-
-## States and behavior
-
-All action buttons use `Button`, with explicit `type="submit"` only inside submit flows. It forwards native button attributes and refs, and provides default, hover, pressed, keyboard focus, disabled, and loading states. Loading disables repeat submissions, retains the accessible label, and sets `aria-busy`. Disabled controls do not acquire enabled hover/pressed treatments.
-
-The prototype maps Run, Continue, Undo, and every Confirm action CTA to the shared primary variant; cancellation and clarification choices to outline; debug follow-up to secondary; and request cancellation/close to ghost. The current theme applies semantic color to Undo and clarification controls while keeping confirmation CTAs black. Scenario selection uses `aria-pressed` and the primary variant, not a one-off active style. The destructive variant remains available in the shared component but is not used for confirmation CTAs.
-
-The scenario menu supports keyboard navigation/typeahead with Radix Select. Workspace tabs use tab/tabpanel semantics and arrow-key navigation. Drawers use Radix Dialog for modal focus containment, Escape/outside dismissal, scroll locking, and focus return to the opening button. Trace expanders retain native `details` keyboard behavior. Reduced-motion preferences suppress component animations.
-
-## Deliberate product extensions
-
-The reference does not define this experiment's five-panel diagram, assessment scales, lifecycle, status colors, trace source markers, or reason badges. Those remain product-specific compositions backed by shared color/surface/radius tokens. Compact diagram annotations retain their existing sizes. The System trace drawer uses the same light surface and borders as the workspace drawer, Inter for event titles and descriptions, muted metadata, and a subtle surface with monospace text for structured data.
-
-To preserve the approved responsive layout, scenario prompts use a documented 36px small button size, icon buttons use the reference's 32px square size, and the one-line request composer uses a compact 40px textarea. The default textarea retains the reference's 80px minimum. Panel padding adapts to window height rather than forcing Figma's standalone example dimensions onto the screen.
-
-The Figma button set does not specify a separate pressed or keyboard-focus variant. Pressed states use the next stronger color in the same palette; keyboard focus uses the input reference's Slate 400 ring with a 2px offset. Trace expanders inset that ring to keep it visible inside their scrolling container. These are explicit interaction extensions, not inferred Figma variants. Validation borders use the destructive token. The scenario select intentionally resets to its placeholder after choosing an action, preserving the prototype's existing action-picker behavior.
-
 ## Verification
 
-Run `npm run typecheck`, `npm run build`, and the existing policy/runtime tests. Browser verification should cover button normal/hover/pressed/focus/disabled/loading states; scenario selection and menu keyboard controls; approval, cancellation, clarification, undo and blocked undo; both drawers and focus return; and desktop/tablet/phone overflow. Interpretation loading can be checked with an intercepted local API response, without calling a model.
+Verified November 17, 2026:
 
-Verified on November 7, 2026: all six button variants' resting/hover/pressed/disabled/focus styling; default 40px button geometry and loaded Inter; Run and Continue loading states with intercepted API responses; reduced motion; keyboard select and tabs; drawer focus containment and return; native keyboard trace expansion; and five scenario states at ten viewport sizes (320–1440px wide). Existing policy/runtime tests: 45 passed. TypeScript checking and an isolated production build passed.
+- TypeScript check, production build, and all 45 existing policy, world, interpretation, evaluation, and runtime tests passed.
+- Browser review covered idle, execute with undo, confirmation and cancellation, clarification and selection, and successful undo. Trace expansion, Escape dismissal with focus return, workspace tabs, and both drawer treatments were checked.
+- Visual review at 1440×900, 1280×800, 768×1024, and 390×844; the workspace drawer was also checked at 320×568. No horizontal page overflow was observed at the checked sizes. The complete confirmation view fits within the 1280×800 desktop viewport.
+- Runtime and page component code were not edited. API interpretation was not called during this styling pass.
 
-Industrial restyling: compared Ready, Execute, Confirm, Clarify, and blocked-undo states before and after at 1280×700, 1440×900, 390×844, and 320×568. All 20 comparisons retain identical DOM structure and header, request area, board, and panel rectangles. The semantic title colors have contrast ratios of 7.70:1 (Execute), 6.50:1 (Clarify), 5.78:1 (Confirm), and 5.09:1 (Stopped).
+Semantic-color follow-up: TypeScript and production build passed. Browser checks covered confirmation, execute/undo, blocked undo, and clarification. Header, request area, stages, title, and confirmation controls had identical measured rectangles before and after at 1440×900. At 390×844, the clarification choice retained a visible 2px white keyboard-focus outline with a 3px offset and no horizontal page overflow. Contrast was calculated for default, hover, and pressed palette values. This was a focused color-accessibility review, not a full screen-reader or WCAG conformance audit.
