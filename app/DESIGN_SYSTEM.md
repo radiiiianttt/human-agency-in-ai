@@ -6,18 +6,30 @@ Shared components live in `components/ui`. `app/design-system.css` defines the c
 
 ## Visual foundations
 
-- Canvas: `#f4f4f2`. Main surfaces: white. Primary ink, actions, and inverse surfaces: `#171717`. Grays provide borders, secondary text, and inactive states; there are no chromatic status accents.
+- Canvas: `#f4f4f2`. Main surfaces: white. Primary ink, actions, and inverse surfaces: `#171717`. Grays provide borders, secondary text, and inactive states. Semantic accents are confined to decisions, their primary controls, and current runtime status.
 - Self-hosted Inter Variable is used for reading and controls. Display titles use bold, tightly spaced uppercase type, reflecting the cover. IBM Plex Mono is reserved for stage numbers, technical labels, structured data, and metadata.
 - The small split capsule beside the identity echoes the cover's central boundary. It is decorative CSS with no added interaction or accessible content.
 - The desktop board joins Interpret and Assess on white, Policy and Result on black, and State below the white region. Internal rules replace separate card outlines. A 20px outer radius echoes the cover at the scale of an interactive interface.
-- Controls use an 8px radius; compact scenario controls and reason badges use 6px. Primary actions are black on light surfaces and white on inverse surfaces. Secondary actions remain visually subordinate.
+- Controls use an 8px radius; compact scenario controls and reason badges use 6px. Primary actions are black on light surfaces and use the decision accent with black text on inverse surfaces. Secondary actions remain visually subordinate.
 - Default controls retain a 40px minimum height. The request composer uses 48px (44px in compact desktop windows). Scenario buttons retain the existing 36px size. Mobile inputs use 16px text.
 
 ## States and interaction contract
 
-This change affects visual presentation only. Page markup, copy, scenario order, policy, runtime, tools, API behavior, and accessible component semantics are unchanged.
+This change affects visual presentation only. Page content, copy, scenario order, policy, runtime, tools, API behavior, and accessible component semantics are unchanged. A `data-state` attribute exposes the existing runtime state to CSS.
 
-Execute, Confirm, Clarify, Working, and Stopped use the same monochrome palette. Their existing decision text, icons, reasons, and available controls distinguish them. Assessment selections use filled markers and heavier labels; current lifecycle stages use a ring and heavier text.
+Execute uses green, Confirm yellow, Clarify violet, Working blue, and Stopped/Blocked red. Existing decision text, icons, reasons, and available controls provide meaning independently of color. Assessment selections remain black; current lifecycle stages use a darker semantic ink with a ring and heavier text.
+
+The policy title, icon, and primary control reflect the original policy decision. The lifecycle marker and result status reflect the current runtime state: for example, a previously executable action can have a red blocked-undo result. Cancelled and idle states are neutral. Run remains black, with blue during loading. Cancel, navigation, inspection controls, reason badges, and the black panel surfaces retain their neutral treatment.
+
+| Meaning | Accent on black / button fill | Ink on white | Accent-to-black contrast | Ink-to-white contrast |
+| --- | --- | --- | --- | --- |
+| Confirm / approval | `#ffd43b` | `#735500` | 12.58:1 | 6.93:1 |
+| Execute / success / undo | `#88e65b` | `#276510` | 11.54:1 | 7.11:1 |
+| Clarify | `#b8a0ff` | `#6441ae` | 8.12:1 | 7.22:1 |
+| Working | `#69c8ff` | `#00618a` | 9.65:1 | 6.83:1 |
+| Stopped / blocked / error | `#ff7a70` | `#b32f27` | 7.06:1 | 6.26:1 |
+
+Black is `#171717`. All new semantic text pairs exceed WCAG AA's 4.5:1 normal-text threshold; the minimum across defined button default, hover, and active fills is 5.56:1. Colored markers and icons exceed the 3:1 graphical threshold. Focus retains a white 2px outline on inverse panels. Clarification choices use violet text/borders and invert to black text on violet for hover/pressed states. Loading controls retain full opacity so their status stays readable.
 
 Inverse tokens are scoped to the Policy and Result panels. Buttons, fields, badges, disabled controls, loading spinners, and keyboard-focus indicators remain legible against black. Focus is a 2px outline with an offset. Invalid fields receive a thicker border. Text selection also adapts to the surface.
 
@@ -49,3 +61,5 @@ Verified November 17, 2026:
 - Browser review covered idle, execute with undo, confirmation and cancellation, clarification and selection, and successful undo. Trace expansion, Escape dismissal with focus return, workspace tabs, and both drawer treatments were checked.
 - Visual review at 1440×900, 1280×800, 768×1024, and 390×844; the workspace drawer was also checked at 320×568. No horizontal page overflow was observed at the checked sizes. The complete confirmation view fits within the 1280×800 desktop viewport.
 - Runtime and page component code were not edited. API interpretation was not called during this styling pass.
+
+Semantic-color follow-up: TypeScript and production build passed. Browser checks covered confirmation, execute/undo, blocked undo, and clarification. Header, request area, stages, title, and confirmation controls had identical measured rectangles before and after at 1440×900. At 390×844, the clarification choice retained a visible 2px white keyboard-focus outline with a 3px offset and no horizontal page overflow. Contrast was calculated for default, hover, and pressed palette values. This was a focused color-accessibility review, not a full screen-reader or WCAG conformance audit.

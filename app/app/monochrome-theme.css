@@ -37,17 +37,38 @@
   --surface-subtle: #f5f5f3;
   --code-foreground: #353533;
   --working-foreground: #626260;
-  --success: #171717;
+  /* Bright accents for black surfaces; companion inks for white surfaces. */
+  --action-confirm: #ffd43b;
+  --action-confirm-ink: #735500;
+  --action-confirm-hover: #ffe16b;
+  --action-confirm-active: #e9bb20;
+  --action-execute: #88e65b;
+  --action-execute-ink: #276510;
+  --action-execute-hover: #a3ee80;
+  --action-execute-active: #70cd45;
+  --action-clarify: #b8a0ff;
+  --action-clarify-ink: #6441ae;
+  --action-clarify-hover: #cbb8ff;
+  --action-clarify-active: #a68aeb;
+  --action-working: #69c8ff;
+  --action-working-ink: #00618a;
+  --action-working-hover: #94d8ff;
+  --action-working-active: #45afea;
+  --action-stopped: #ff7a70;
+  --action-stopped-ink: #b32f27;
+  --action-stopped-hover: #ff9991;
+  --action-stopped-active: #ea655c;
+  --success: var(--action-execute-ink);
   --success-soft: #f0f0ee;
-  --warning: #171717;
+  --warning: var(--action-confirm-ink);
   --warning-soft: #f0f0ee;
-  --info: #171717;
+  --info: var(--action-working-ink);
   --info-soft: #f0f0ee;
-  --danger: #171717;
+  --danger: var(--action-stopped-ink);
   --danger-soft: #f0f0ee;
-  --destructive: #171717;
-  --destructive-hover: #373737;
-  --destructive-active: #000000;
+  --destructive: var(--action-stopped-ink);
+  --destructive-hover: #98271f;
+  --destructive-active: #7d201a;
   --trace-user: #171717;
   --trace-model: #727272;
   --trace-policy: #171717;
@@ -190,6 +211,91 @@ main { padding-inline: 32px; padding-bottom: 24px; }
 .resources h3 { margin-block: 10px; font-size: 16px; font-weight: 650; letter-spacing: -.025em; }
 .resources p { font-size: 13px; line-height: 1.65; }
 .reset-button { min-height: 44px; }
+
+/* Semantic accents change color only. Policy describes the original decision;
+   lifecycle and result colors describe the current runtime state. */
+main {
+  --decision-accent: #fff;
+  --decision-ink: #171717;
+  --decision-hover: #e3e3df;
+  --decision-active: #c9c9c5;
+  --state-accent: var(--decision-accent);
+  --state-ink: var(--decision-ink);
+}
+main:has(.policy-stage.tone-confirm) {
+  --decision-accent: var(--action-confirm);
+  --decision-ink: var(--action-confirm-ink);
+  --decision-hover: var(--action-confirm-hover);
+  --decision-active: var(--action-confirm-active);
+}
+main:has(.policy-stage.tone-execute) {
+  --decision-accent: var(--action-execute);
+  --decision-ink: var(--action-execute-ink);
+  --decision-hover: var(--action-execute-hover);
+  --decision-active: var(--action-execute-active);
+}
+main:has(.policy-stage.tone-clarify) {
+  --decision-accent: var(--action-clarify);
+  --decision-ink: var(--action-clarify-ink);
+  --decision-hover: var(--action-clarify-hover);
+  --decision-active: var(--action-clarify-active);
+}
+main:has(.policy-stage.tone-working) {
+  --decision-accent: var(--action-working);
+  --decision-ink: var(--action-working-ink);
+  --decision-hover: var(--action-working-hover);
+  --decision-active: var(--action-working-active);
+}
+main:has(.policy-stage.tone-stopped) {
+  --decision-accent: var(--action-stopped);
+  --decision-ink: var(--action-stopped-ink);
+  --decision-hover: var(--action-stopped-hover);
+  --decision-active: var(--action-stopped-active);
+}
+main[data-state="Awaiting approval"] {
+  --state-accent: var(--action-confirm);
+  --state-ink: var(--action-confirm-ink);
+}
+main[data-state="Awaiting clarification"] {
+  --state-accent: var(--action-clarify);
+  --state-ink: var(--action-clarify-ink);
+}
+main[data-state="Interpreting"], main[data-state="Assessing"], main[data-state="Executing"], main[data-state="Undoing"] {
+  --state-accent: var(--action-working);
+  --state-ink: var(--action-working-ink);
+}
+main[data-state="Completed"], main[data-state="Undone"] {
+  --state-accent: var(--action-execute);
+  --state-ink: var(--action-execute-ink);
+}
+main[data-state="Execution stopped"], main[data-state="Undo blocked"] {
+  --state-accent: var(--action-stopped);
+  --state-ink: var(--action-stopped-ink);
+}
+main[data-state="Ready"], main[data-state="Cancelled"] { --state-accent: #b0b0ac; --state-ink: #171717; }
+.policy-stage {
+  --primary: var(--decision-accent);
+  --primary-hover: var(--decision-hover);
+  --primary-active: var(--decision-active);
+}
+.policy-stage h1, .policy-stage > .outline-icon { color: var(--decision-accent); }
+.policy-stage .clarification-choices .ui-button {
+  --accent: var(--action-clarify);
+  --accent-foreground: #171717;
+  --secondary-hover: var(--action-clarify-active);
+  color: var(--action-clarify);
+  border-color: var(--action-clarify);
+}
+.policy-stage .clarification-choices .ui-button:enabled:hover,
+.policy-stage .clarification-choices .ui-button:enabled:active { color: #171717; border-color: var(--action-clarify); }
+.lifecycle .current { color: var(--state-ink); }
+.lifecycle .current i { background: var(--state-ink); box-shadow: 0 0 0 2px var(--state-ink); }
+.result-stage .world-delta small { color: var(--state-accent); }
+.result-stage .containment { color: var(--action-stopped); }
+.policy-stage .ui-input[aria-invalid='true'] { border-color: var(--action-stopped); }
+.run-button[data-loading='true'] { background: var(--action-working); color: #171717; }
+.run-button[data-loading='true'] .ui-spinner { filter: brightness(0); }
+.ui-button[data-loading='true'] { opacity: 1; }
 
 @media (min-width: 1051px) and (max-height: 800px) {
   main { padding-bottom: 16px; }
