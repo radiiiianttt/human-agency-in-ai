@@ -10,7 +10,7 @@ As assistants gain the ability to change things on our behalf, each action raise
 
 All actions affect a simulated, in-memory workspace. No real messages are sent or personal files changed. Resetting or reloading starts a fresh session.
 
-![Desktop prototype: a private note executes with undo available, with all five panels visible](docs/screenshots/execute-with-undo.jpg)
+![Current desktop design: white interpretation and assessment panels beside a black policy panel, with green Execute + undo accents](docs/screenshots/execute-with-undo.jpg)
 
 *A clear, authorized private action executes directly. The user can inspect the decision and undo the change.*
 
@@ -33,7 +33,7 @@ Free-text requests use a server-side model to propose a supported action. For ex
 <details>
 <summary>View the confirmation state</summary>
 
-![A serious, irreversible deletion pauses for confirmation while the document remains preserved](docs/screenshots/confirm-serious-action.jpg)
+![Yellow Confirm heading and primary action on the black policy panel; the only thesis copy remains preserved while awaiting approval](docs/screenshots/confirm-serious-action.jpg)
 
 The action waits for approval. Cancelling preserves the document; confirming executes the reviewed simulated action.
 
@@ -42,11 +42,27 @@ The action waits for approval. Cancelling preserves the document; confirming exe
 <details>
 <summary>View the mobile interface</summary>
 
-<img src="docs/screenshots/mobile-execute.jpg" alt="Mobile prototype with the five panels stacked vertically and undo available after creating a private note" width="320">
+<img src="docs/screenshots/mobile-execute.jpg" alt="Current mobile design with five vertically stacked panels, black policy and result surfaces, and green execution and undo accents" width="320">
 
 The same five panels stack vertically on mobile. The prompt row scrolls horizontally, and the workspace and trace remain available in drawers.
 
 </details>
+
+## Reading the interface
+
+The visual design follows the experiment's **HUMAN / AGENT** cover: white interpretation and assessment panels, a black policy-and-result area, and bold decision typography. Color highlights the decision and current state:
+
+| Color | Meaning |
+| --- | --- |
+| **Green** | Execute, successful completion, and undo. |
+| **Yellow** | Confirmation or authorization required. |
+| **Violet** | Clarification needed. |
+| **Blue** | Processing or execution in progress. |
+| **Red** | An error, stopped execution, or blocked undo. |
+
+Labels and icons carry meaning alongside color. The policy panel retains the original decision; the state and result panels reflect the current outcome, so a green execution decision can be followed by a red blocked-undo result.
+
+The new semantic text colors meet WCAG AA contrast thresholds on their intended surfaces. See the [design system](app/DESIGN_SYSTEM.md) for the palette, contrast measurements, control states, and responsive rules.
 
 ## How it works
 
@@ -77,7 +93,9 @@ External impact alone does not require confirmation. An approval applies to the 
 
 The structured evaluation matched **10/10 expected scenarios**. The focused suite passed **45 tests**, covering policy rules, simulated tools, interpretation boundaries, runtime transitions, and trace behavior. These results establish implementation conformance to Policy v0; user trust and real-world safety still need separate evaluation.
 
-The live check on November 7, 2026 verified the nine presets, supported free-text interpretation, clarification replies, cancellation, undo protection, drawers, and responsive reflow at widths from 320px to 1440px. It also identified three open issues:
+The November 17, 2026 visual update was verified on the live app, with refreshed desktop and mobile screenshots above. TypeScript and production builds passed; browser checks covered confirmation, clarification, execution, undo, blocked undo, and visible keyboard focus.
+
+The earlier live check on November 7, 2026 verified the nine presets, supported free-text interpretation, clarification replies, cancellation, undo protection, drawers, and responsive reflow at widths from 320px to 1440px. It also identified three open issues:
 
 - The Result panel can retain an old action label after a successful undo, even though the workspace is restored.
 - Unsupported scheduling requests can enter clarification instead of returning an unsupported response. No scheduling tool exists and no action is executed.
